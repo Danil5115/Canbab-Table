@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tasks</h2>
+<form action="{{ url_for('add_task') }}" method="POST" class="mb-4">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <label for="title">Title</label>
+        {{ form.title(class="form-control", id="title") }}
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        {{ form.description(class="form-control", id="description", rows=5) }}
+    </div>
+    <div class="form-group">
+        <label for="sprint_id">Sprint</label>
+        {{ form.sprint_id(class="form-control", id="sprint_id") }}
+    </div>
+    <div class="form-group">
+        <label for="person_id">Person</label>
+        {{ form.person_id(class="form-control", id="person_id") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Add Task</button>
+</form>
+
+<h3 class="mt-4">All Tasks</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Sprint</th>
+            <th>Person</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.sprint.name if task.sprint else 'N/A' }}</td>
+                <td>{{ task.person.name if task.person else 'N/A' }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Sprint Statistics</h2>
+<ul>
+    {% for sprint in sprints %}
+    <li>
+        <h3>{{ sprint.name }} ({{ sprint.start_date }} - {{ sprint.end_date }})</h3>
+        <p>To Do: {{ sprint.tasks|selectattr('status', 'equalto', 'To Do')|list|length }}</p>
+        <p>In Progress: {{ sprint.tasks|selectattr('status', 'equalto', 'In Progress')|list|length }}</p>
+        <p>Done: {{ sprint.tasks|selectattr('status', 'equalto', 'Done')|list|length }}</p>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

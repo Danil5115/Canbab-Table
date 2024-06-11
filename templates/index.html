@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Kanban Board</h2>
+<div class="form-group">
+    <label for="sprint_filter">Select Sprint</label>
+    <form method="GET" action="/">
+        <select class="form-control" id="sprint_filter" name="sprint_id" onchange="this.form.submit()">
+            <option value="">All Sprints</option>
+            {% for sprint in sprints %}
+                <option value="{{ sprint.id }}" {% if sprint.id == selected_sprint %}selected{% endif %}>{{ sprint.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<h3>Tasks</h3>
+<div class="row">
+    <div class="col-md-4">
+        <h4>To Do</h4>
+        <div class="list-group">
+            {% for task in tasks %}
+                {% if task.status == 'To Do' %}
+                    <div class="list-group-item">
+                        <h5>{{ task.title }}</h5>
+                        <p>{{ task.description }}</p>
+                        <p>Assigned to: {{ task.person.name }} ({{ task.person.position }})</p>
+                        <form action="{{ url_for('update_task', task_id=task.id, new_status='In Progress') }}" method="POST" class="d-inline">
+                            <input type="hidden" name="sprint_id" value="{{ selected_sprint }}">
+                            <button type="submit" class="btn btn-primary btn-sm">Start</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h4>In Progress</h4>
+        <div class="list-group">
+            {% for task in tasks %}
+                {% if task.status == 'In Progress' %}
+                    <div class="list-group-item">
+                        <h5>{{ task.title }}</h5>
+                        <p>{{ task.description }}</p>
+                        <p>Assigned to: {{ task.person.name }} ({{ task.person.position }})</p>
+                        <form action="{{ url_for('update_task', task_id=task.id, new_status='Done') }}" method="POST" class="d-inline">
+                            <input type="hidden" name="sprint_id" value="{{ selected_sprint }}">
+                            <button type="submit" class="btn btn-success btn-sm">Complete</button>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h4>Done</h4>
+        <div class="list-group">
+            {% for task in tasks %}
+                {% if task.status == 'Done' %}
+                    <div class="list-group-item">
+                        <h5>{{ task.title }}</h5>
+                        <p>{{ task.description }}</p>
+                        <p>Assigned to: {{ task.person.name }} ({{ task.person.position }})</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h3>Metrics</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Burndown Chart</h4>
+            <img src="{{ url_for('static', filename='burndown.png') }}" class="img-fluid" alt="Burndown Chart">
+            <p>This chart shows the progress of completing tasks over time.</p>
+        </div>
+        {% if not selected_sprint %}
+        <div class="col-md-6">
+            <h4>Velocity Chart</h4>
+            <img src="{{ url_for('static', filename='velocity.png') }}" class="img-fluid" alt="Velocity Chart">
+            <p>This chart shows the number of tasks completed in each sprint.</p>
+        </div>
+        {% endif %}
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Lead Time (Histogram)</h4>
+            <img src="{{ url_for('static', filename='lead_time_histogram.png') }}" class="img-fluid" alt="Lead Time Histogram">
+            <p>This histogram shows the distribution of lead times for tasks.</p>
+        </div>
+        <div class="col-md-6">
+            <h4>Lead Time (Box Plot)</h4>
+            <img src="{{ url_for('static', filename='lead_time_box.png') }}" class="img-fluid" alt="Lead Time Box Plot">
+            <p>This box plot shows the spread and outliers of lead times for tasks.</p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Cycle Time (Box Plot)</h4>
+            <img src="{{ url_for('static', filename='cycle_time_box.png') }}" class="img-fluid" alt="Cycle Time Box Plot">
+            <p>This box plot shows the spread and outliers of cycle times for tasks.</p>
+        </div>
+        <div class="col-md-6">
+            <h4>Cycle Time (Scatter Plot)</h4>
+            <img src="{{ url_for('static', filename='cycle_time_scatter.png') }}" class="img-fluid" alt="Cycle Time Scatter Plot">
+            <p>This scatter plot shows the cycle times for individual tasks.</p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4>Time in Process (Stacked Bar Chart)</h4>
+            <img src="{{ url_for('static', filename='time_in_process_stacked.png') }}" class="img-fluid" alt="Time in Process Stacked Bar Chart">
+            <p>This chart shows the time tasks spend in each process stage.</p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4>Cumulative Flow Diagram</h4>
+            <img src="{{ url_for('static', filename='cumulative_flow.png') }}" class="img-fluid" alt="Cumulative Flow Diagram">
+            <p>This diagram shows the cumulative flow of tasks through the process stages over time.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
